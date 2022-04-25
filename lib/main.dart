@@ -24,6 +24,8 @@ class _HomeState extends State<Home> {
   TextEditingController dataInicialController = TextEditingController();
   TextEditingController dataFinalController = TextEditingController();
 
+  DateTime inicio = new DateTime.now();
+  DateTime fim = DateTime.now();
   String _infoText = "Informe as datas";
 
   void _resetField() {
@@ -36,25 +38,23 @@ class _HomeState extends State<Home> {
 
   void _calculate() {
     setState(() {
-      DateTime inicio = new DateTime.now();
-      DateTime fim = DateTime.now();
-      int diasUteis = 0;
+      int diasUteis = diasUteisCalc(inicio, fim);
 
-      int diasUteisCalc(DateTime inicio, DateTime fim) {
-        int diasUteis = 0;
-        for (var dataI = inicio;
-        fim.difference(dataI).inDays >= 0;
-        dataI = dataI.add(Duration(days: 1))){
-          if (dataI.weekday == 6 || dataI.weekday == 7){
-            continue;
-          }
-          diasUteis ++;
-        }
-        return diasUteis;
-      }
-
-      _infoText = 'São ${diasUteis.toString()} dias úteis';
+      _infoText = 'São $diasUteis dias úteis';
     });
+  }
+
+  int diasUteisCalc(DateTime inicio, DateTime fim) {
+    int diasUteis = 0;
+    for (var dataI = inicio;
+        fim.difference(dataI).inDays >= 0;
+        dataI = dataI.add(Duration(days: 1))) {
+      if (dataI.weekday == 6 || dataI.weekday == 7) {
+        continue;
+      }
+      diasUteis++;
+    }
+    return diasUteis;
   }
 
   @override
@@ -118,15 +118,17 @@ class _HomeState extends State<Home> {
                         initialDate: DateTime.now(),
                         firstDate: DateTime(2000),
                         lastDate: DateTime(2100));
-                        
+
                     if (pickedDate != null) {
                       print(pickedDate);
                       String formattedDate =
                           DateFormat('dd/MM/yyyy').format(pickedDate);
                       print(formattedDate);
-                    
+                      setState(() {
+                        dataInicialController.text = formattedDate;
+                        inicio = pickedDate;
+                      });
                     }
-                    
                   },
                   controller: dataInicialController,
                   validator: (value) {
@@ -161,6 +163,7 @@ class _HomeState extends State<Home> {
                       print(formattedDate);
                       setState(() {
                         dataFinalController.text = formattedDate;
+                        fim = pickedDate;
                       });
                     }
                   },
